@@ -7,5 +7,7 @@ La idea es graficar las poblaciones de zorros y conejos, y llegar al comportamie
 Entonces se estable, de manera muy básica, que: 
 
 \-zorros se comen a conejos.
+
 \-tanto conejos como zorros pueden reproducirse, pero para los zorros está sujeto a su alimentación.
+
 \-tanto conejos como zorros mueren después de un tiempo.
