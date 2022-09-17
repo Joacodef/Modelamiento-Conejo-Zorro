@@ -6,16 +6,16 @@ import math
 
 # Constantes
 GRID_SIZE = 30
-TOTAL_TICKS = 15
+TOTAL_TICKS = 50
 TICK_TIME = 1 # en segundos
 POS_INI_CON = [9,9]
 POS_INI_ZOR = [0,0]
-VIDA_CONEJO = 30
-VIDA_ZORRO = 30
+VIDA_CONEJO = 15
+VIDA_ZORRO = 50
 TIPO_CONEJO = -1
 TIPO_ZORRO = 1
 FREC_REP_CONEJO = 4
-FREC_ALI_ZORRO = 15
+FREC_ALI_ZORRO = 50
 
 # Datos de los animales
 TIPO = 0
@@ -51,30 +51,16 @@ def graficarGrilla(arreglo):
     plt.show()
     plt.pause(TICK_TIME)
 
+def teletransportar(posicion, gridsize):
+    posicion[0] %= gridsize
+    posicion[1] %= gridsize
+    return posicion
+
 def moverAnimal(animal, grilla):
     posicion = animal[POS]
     posAux = posicion
     mov = generarMovimiento()
-    #Determinar si se está en caso borde:
-    if posicion == [0,0] and mov == [-1,-1]: #Esquina superior izquierda, movimiento diagonal supizq
-        posicion = [GRID_SIZE-1,GRID_SIZE-1]
-    elif posicion == [0,GRID_SIZE-1] and mov == [-1,1]: #Esquina sup der, mov diagonal supder
-        posicion = [GRID_SIZE-1,0]
-    elif posicion == [GRID_SIZE-1,0] and mov == [1,-1]: #Esquina inf izq, mov diagonal infizq
-        posicion = [0,GRID_SIZE-1]
-    elif posicion == [GRID_SIZE-1,GRID_SIZE-1] and mov == [1,1]: #Esquina inf der, mov diagonal infder
-        posicion = [0,0]
-    elif posicion[0] == 0 and mov[0]==-1: #Borde superior, movimiento superior
-        posicion = [GRID_SIZE-1,posicion[1]+mov[1]]
-    elif posicion[0] == GRID_SIZE-1 and mov[0]==1: #Borde inferior, movimiento inferior
-        posicion = [0,posicion[1]+mov[1]]
-    elif posicion[1] == 0 and mov[1]==-1: #Borde izquierdo, movimiento izquierdo
-        posicion = [posicion[0]+mov[0],GRID_SIZE-1]
-    elif posicion[1] == GRID_SIZE-1 and mov[1]==1: #Borde derecho, movimiento derecho
-        posicion = [posicion[0]+mov[0],0]
-    else:
-        posicion = list(np.add(posicion,mov))
-    
+    posicion = teletransportar(list(np.add(posicion,mov)),GRID_SIZE)
     if grilla[posicion[0]][posicion[1]][0] == 0:
         grilla[posicion[0]][posicion[1]] = animal
         grilla[posAux[0]][posAux[1]] = terrenoVacio
@@ -86,8 +72,8 @@ def pasoTiempoAnimal(animal):
     animal[EDAD] += 1
     animal[TIEMPO_RA] += 1
 
-def animalMuere(animal, grilla, listaAnim):
-    listaAnim.remove(animal)
+def animalMuere(animal, grilla, listaAni):
+    listaAni.remove(animal)
     grilla[animal[1][0]][animal[1][1]] = terrenoVacio
 
 def generarMovimiento():
@@ -102,21 +88,25 @@ def reproducir(animal, grilla, listaAni):
         moverAnimal(animal,grilla)
         if posAux != animal[POS]:
             nuevoConejo = [TIPO_CONEJO,posAux,-1,-1]
+            grilla[posAux[0]][posAux[1]]=nuevoConejo
             listaAni.append(nuevoConejo)
             reproducido = True
     return reproducido
 
 def vecinos(animal, grilla, distancia): #Definir si se guardan todos los vecinos a 1 de distancia
     vecinos = []
-    #for x in range(0,4*x*(x+1)):
-        # Agregar cada vecino
     return vecinos
-        
-"""
+   
 def comer(animal,grilla,listaAni):
-
-
-"""
+    for fila in range(-1,2):
+        for col in range(-1,2):
+            pos = [animal[POS][0] + fila, animal[POS][1] + col]
+            pos = teletransportar(pos, GRID_SIZE)
+            if grilla[pos[0]][pos[1]][TIPO]==TIPO_CONEJO:
+                animalMuere(grilla[pos[0]][pos[1]],grilla,listaAni) #Produce error porque no puede encontrar el animal en listaAnimales
+                animal[TIEMPO_RA] = 0
+                reproducir(animal,grilla,listaAni)
+                break
 
 grillaMain = crearGrilla(listaAnimales)
 graficarGrilla(grillaMain)
@@ -138,6 +128,8 @@ for i in range(0,TOTAL_TICKS):
             reproducir(animal, grillaMain, listaAnimales)
         else:
             moverAnimal(animal, grillaMain)
+        if animal[TIPO] == TIPO_ZORRO:
+            comer(animal,grillaMain,listaAnimales)
     #print(listaAnimales)
     #Ejecutar interacción entre lobos y conejos (quiza hacerlo en la misma función de moverlos?)
     graficarGrilla(grillaMain)
