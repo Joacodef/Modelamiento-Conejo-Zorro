@@ -1,2 +1,3 @@
 *.code-workspace
 pruebas.py
+__pycache__
