@@ -5,13 +5,13 @@ import random
 # Parametros de la simulacion
 GRID_SIZE = 100
 TICK_RATE = 0.1 # en segundos
-TOTAL_TICKS = 700
+TOTAL_TICKS = 2000
 VIDA_CONEJO = 60 # en numero de ticks
 VIDA_ZORRO = 70
-FREC_REP_CONEJO = 20 
+FREC_REP_CONEJO = 10 
 FREC_ALI_ZORRO = 20
-COOLDOWN_ZORRO = 4
-PROB_REP_ZORRO = 0.7 # entre 0 y 1
+COOLDOWN_ZORRO = 2
+PROB_REP_ZORRO = 0.8 # entre 0 y 1
 NUM_INICIAL_CONEJOS = 40
 NUM_INICIAL_ZORROS = 100
 VISUALIZAR = True
@@ -67,7 +67,7 @@ def graficarGrilla(arreglo, it):
     plt.imshow(arregloAux.astype(float), cmap="bwr")
     plt.show()
     plt.pause(TICK_RATE)
-    if it % 9 == 0:
+    if it % 8 == 0:
         plt.close()
     
 
@@ -94,7 +94,6 @@ def moverAnimal(animal):
         grillaMain[posAux[0]][posAux[1]] = terrenoVacio
 
 
-if VISUALIZAR: graficarGrilla(grillaMain, 0)
 cantidadConejos = []
 cantidadZorros = []
 
@@ -168,7 +167,7 @@ for i in range(0,TOTAL_TICKS):
 ticks = list(range(0,TOTAL_TICKS+1))
 
 plt.clf()
+plt.ioff()
 plt.plot(ticks, listNumConejos)
 plt.plot(ticks, listNumZorros)
 plt.show()
-plt.pause(100)
