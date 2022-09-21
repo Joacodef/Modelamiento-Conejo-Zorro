@@ -1,0 +1,15 @@
+Pocas oscilaciones, pero no hay extinción en general:
+
+# Parametros de la simulacion
+GRID_SIZE = 100
+TICK_RATE = 0.1 # en segundos
+TOTAL_TICKS = 700
+VIDA_CONEJO = 60 # en numero de ticks
+VIDA_ZORRO = 70
+FREC_REP_CONEJO = 20 
+FREC_ALI_ZORRO = 20
+COOLDOWN_ZORRO = 4
+PROB_REP_ZORRO = 0.7 # entre 0 y 1
+NUM_INICIAL_CONEJOS = 40
+NUM_INICIAL_ZORROS = 100
+VISUALIZAR = True

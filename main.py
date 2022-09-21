@@ -5,15 +5,16 @@ import random
 # Parametros de la simulacion
 GRID_SIZE = 100
 TICK_RATE = 0.1 # en segundos
-TOTAL_TICKS = 1000
+TOTAL_TICKS = 700
 VIDA_CONEJO = 60 # en numero de ticks
 VIDA_ZORRO = 70
 FREC_REP_CONEJO = 20 
 FREC_ALI_ZORRO = 20
-COOLDOWN_ZORRO = 3
-PROB_REP_ZORRO = 0.8 # entre 0 y 1
+COOLDOWN_ZORRO = 4
+PROB_REP_ZORRO = 0.7 # entre 0 y 1
 NUM_INICIAL_CONEJOS = 40
 NUM_INICIAL_ZORROS = 100
+VISUALIZAR = True
 
 # Datos de los animales
 TIPO_CONEJO = -1
@@ -61,17 +62,13 @@ def crearGrilla(listaAni):
 
 grillaMain = crearGrilla(listaAnimales)
 
-def graficarGrilla(arreglo, contFrames):
+def graficarGrilla(arreglo, it):
     arregloAux = arreglo[:,:,0]
     plt.imshow(arregloAux.astype(float), cmap="bwr")
     plt.show()
-    contFrames += 1
     plt.pause(TICK_RATE)
-    if contFrames > 9:
+    if it % 9 == 0:
         plt.close()
-        contFrames = 0
-        print(totalTicks)
-    return contFrames
     
 
 def teletransportar(posicion):
@@ -97,13 +94,12 @@ def moverAnimal(animal):
         grillaMain[posAux[0]][posAux[1]] = terrenoVacio
 
 
-graficarGrilla(grillaMain, contadorFrames)
+if VISUALIZAR: graficarGrilla(grillaMain, 0)
 cantidadConejos = []
 cantidadZorros = []
 
 # LOOP PRINCIPAL, cada iteración es un tick
 for i in range(0,TOTAL_TICKS):
-    totalTicks += 1
     for animal in listaAnimales:
         #---Paso de tiempo (aumento de edad y tiempo desde alimentacion/reproduccion)---
         animal[EDAD] += 1
@@ -165,7 +161,9 @@ for i in range(0,TOTAL_TICKS):
                         seAlimento = True
     listNumConejos.append(numConejos)
     listNumZorros.append(numZorros)                   
-    contadorFrames = graficarGrilla(grillaMain, contadorFrames)
+    if VISUALIZAR: graficarGrilla(grillaMain, i)
+    if i % 10 == 0:
+        print("Num iteraciones = ",i)
 
 ticks = list(range(0,TOTAL_TICKS+1))
 
