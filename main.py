@@ -5,7 +5,7 @@ import random
 # Parametros de la simulacion
 GRID_SIZE = 100
 TICK_RATE = 0.1 # en segundos
-TOTAL_TICKS = 2000
+TOTAL_TICKS = 500
 VIDA_CONEJO = 60 # en numero de ticks
 VIDA_ZORRO = 70
 FREC_REP_CONEJO = 10 
@@ -33,6 +33,8 @@ listNumConejos = []
 listNumZorros = []
 terrenoVacio = [0,0,0,0,0]
 totalTicks = 0
+cantidadConejos = []
+cantidadZorros = []
 
 plt.ion()
 
@@ -43,7 +45,7 @@ def crearGrilla(listaAni):
     # Generar conejos
     for x in range(0,NUM_INICIAL_CONEJOS):
         pos = [random.randint(0,GRID_SIZE-1),random.randint(0,GRID_SIZE-1)]
-        while grilla[pos[0]][pos[1]][0] != 0:
+        while grilla[pos[0]][pos[1]][TIPO] != 0:
             pos = [random.randint(0,GRID_SIZE-1),random.randint(0,GRID_SIZE-1)]
         grilla[pos[0]][pos[1]] = [TIPO_CONEJO,pos[0],pos[1],0,0]
         listaAni.append(list(grilla[pos[0]][pos[1]]))
@@ -51,7 +53,7 @@ def crearGrilla(listaAni):
     # Generar zorros
     for x in range(0,NUM_INICIAL_ZORROS):
         pos = [random.randint(0,GRID_SIZE-1),random.randint(0,GRID_SIZE-1)]
-        while grilla[pos[0]][pos[1]][0] != 0:
+        while grilla[pos[0]][pos[1]][TIPO] != 0:
             pos = [random.randint(0,GRID_SIZE-1),random.randint(0,GRID_SIZE-1)]
         grilla[pos[0]][pos[1]] = [TIPO_ZORRO,pos[0],pos[1],-20,-20]
         listaAni.append(list(grilla[pos[0]][pos[1]]))
@@ -63,13 +65,12 @@ def crearGrilla(listaAni):
 grillaMain = crearGrilla(listaAnimales)
 
 def graficarGrilla(arreglo, it):
-    arregloAux = arreglo[:,:,0]
+    arregloAux = arreglo[:,:,0]    
     plt.imshow(arregloAux.astype(float), cmap="bwr")
     plt.show()
     plt.pause(TICK_RATE)
     if it % 8 == 0:
         plt.close()
-    
 
 def teletransportar(posicion):
     posicion[0] %= GRID_SIZE
@@ -87,15 +88,11 @@ def moverAnimal(animal):
     posAux = posicion.copy()
     mov = generarMovimiento()
     posicion = teletransportar(list(np.add(posicion,mov)))
-    if grillaMain[posicion[0]][posicion[1]][0] == 0:
+    if grillaMain[posicion[0]][posicion[1]][TIPO] == 0:
         animal[POS_FILA]=posicion[0]
         animal[POS_COL]=posicion[1]
         grillaMain[posicion[0]][posicion[1]] = animal
         grillaMain[posAux[0]][posAux[1]] = terrenoVacio
-
-
-cantidadConejos = []
-cantidadZorros = []
 
 # LOOP PRINCIPAL, cada iteración es un tick
 for i in range(0,TOTAL_TICKS):
@@ -164,10 +161,9 @@ for i in range(0,TOTAL_TICKS):
     if i % 10 == 0:
         print("Num iteraciones = ",i)
 
-ticks = list(range(0,TOTAL_TICKS+1))
-
 plt.clf()
 plt.ioff()
+ticks = list(range(0,TOTAL_TICKS+1))
 plt.plot(ticks, listNumConejos)
 plt.plot(ticks, listNumZorros)
 plt.show()
