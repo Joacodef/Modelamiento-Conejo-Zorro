@@ -15,17 +15,17 @@ VISUALIZAR = True
 DIST_REP_CONEJO = 30
 
 
-Grilla pequeña:
+Grilla pequeña, oscilaciones muy rápidas:
 
 GRID_SIZE = 50
 TICK_RATE = 0.1 # en segundos
 TOTAL_TICKS = 500
 VIDA_CONEJO = 20 # en numero de ticks
 VIDA_ZORRO = 60
-FREC_REP_CONEJO = 3
+FREC_REP_CONEJO = 2
 FREC_ALI_ZORRO = 7
 COOLDOWN_ZORRO = 3
-PROB_REP_ZORRO = 0.85 # entre 0 y 1
+PROB_REP_ZORRO = 0.95 # entre 0 y 1
 NUM_INICIAL_CONEJOS = 25
 NUM_INICIAL_ZORROS = 13
 VISUALIZAR = True
