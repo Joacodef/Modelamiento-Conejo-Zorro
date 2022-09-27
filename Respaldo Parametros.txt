@@ -1,21 +1,17 @@
-Grilla grande, oscilaciones rápidas, poblaciones grandes:
-
 GRID_SIZE = 100
 TICK_RATE = 0.1 # en segundos
 TOTAL_TICKS = 500
-VIDA_CONEJO = 20 # en numero de ticks
-VIDA_ZORRO = 60
-FREC_REP_CONEJO = 5
-FREC_ALI_ZORRO = 8
+VIDA_CONEJO = 40 # en numero de ticks
+VIDA_ZORRO = 80
+FREC_REP_CONEJO = 8
+FREC_ALI_ZORRO = 16
 COOLDOWN_ZORRO = 2
-PROB_REP_ZORRO = 0.85 # entre 0 y 1
+PROB_REP_ZORRO = 0.75 # entre 0 y 1
 NUM_INICIAL_CONEJOS = 50
-NUM_INICIAL_ZORROS = 30
+NUM_INICIAL_ZORROS = 20
 VISUALIZAR = True
-DIST_REP_CONEJO = 30
-
-
-Grilla pequeña, oscilaciones muy rápidas:
+DIST_REP_CONEJO = 6
+PROB_REP_LEJANA = 0.07
 
 GRID_SIZE = 50
 TICK_RATE = 0.1 # en segundos
@@ -30,3 +26,4 @@ NUM_INICIAL_CONEJOS = 25
 NUM_INICIAL_ZORROS = 13
 VISUALIZAR = True
 DIST_REP_CONEJO = 18
+PROB_REP_LEJANA = 0
