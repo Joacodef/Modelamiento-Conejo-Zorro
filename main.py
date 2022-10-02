@@ -3,21 +3,20 @@ import matplotlib.pyplot as plt
 import random
 
 # Parametros de la simulacion
-GRID_SIZE = 50
+GRID_SIZE = 100
 TICK_RATE = 0.1 # en segundos
-TOTAL_TICKS = 4
-VIDA_CONEJO = 20 # en numero de ticks
-VIDA_ZORRO = 60
-FREC_REP_CONEJO = 2
-FREC_ALI_ZORRO = 7
-COOLDOWN_ZORRO = 3
-PROB_REP_ZORRO = 0.95 # entre 0 y 1
-NUM_INICIAL_CONEJOS = 1
-NUM_INICIAL_ZORROS = 1
+TOTAL_TICKS = 1000
+VIDA_CONEJO = 40 # en numero de ticks
+VIDA_ZORRO = 80
+FREC_REP_CONEJO = 8
+FREC_ALI_ZORRO = 16
+COOLDOWN_ZORRO = 2
+PROB_REP_ZORRO = 0.75 # entre 0 y 1
+NUM_INICIAL_CONEJOS = 50
+NUM_INICIAL_ZORROS = 20
 VISUALIZAR = True
-DIST_REP_CONEJO = 2
-PROB_REP_LEJANA = 0.5
-
+DIST_REP_CONEJO = 6
+PROB_REP_LEJANA = 0.07
 # Constantes
 KEY = 0
 VALUE = 1
@@ -38,8 +37,6 @@ listNumZorros = []
 totalTicks = 0
 cantidadConejos = []
 cantidadZorros = []
-
-plt.ion()
 
 def crearAnimalesInic():
     global dictAnimales
@@ -104,10 +101,11 @@ O SI SE ALTERA EN EL DICT LA POS DE UN ANIMAL QUE NO SE HA MOVIDO (COSA QUE NO D
 
 PUEDEN HABER OTROS PROBLEMAS QUE NO HE PENSADO
 """
-print(dictAnimales)
+#print(dictAnimales)
 
 # LOOP PRINCIPAL, cada iteración es un tick
 for i in range(0,TOTAL_TICKS):
+    grilla = np.full((100,100),0)
     if i % 100 == 99:
         print("# ticks: ",i)
     animales = list(dictAnimales.items()).copy()
@@ -115,37 +113,39 @@ for i in range(0,TOTAL_TICKS):
         #---Verificar que animal exista en diccionario---
         if not dictAnimales.get(animal[KEY]):
             continue
+        posicion = animal[KEY]
+        grilla[posicion[FILA]][posicion[COLUMNA]] = dictAnimales[posicion][TIPO]
         #---Paso de tiempo (aumento de edad y tiempo desde alimentacion/reproduccion)---
-        dictAnimales[animal[KEY]][EDAD] += 1
-        dictAnimales[animal[KEY]][TIEMPO_RA] += 1
+        dictAnimales[posicion][EDAD] += 1
+        dictAnimales[posicion][TIEMPO_RA] += 1
         #---Verificar tipo de animal---
-        if dictAnimales[animal[KEY]][TIPO] == TIPO_CONEJO:
+        if dictAnimales[posicion][TIPO] == TIPO_CONEJO:
             #---Verificar muerte por edad---
-            if dictAnimales[animal[KEY]][EDAD] > VIDA_CONEJO:
-                del dictAnimales[animal[KEY]]
+            if dictAnimales[posicion][EDAD] > VIDA_CONEJO:
+                del dictAnimales[posicion]
                 numConejos -= 1
                 continue
             #---Reproduccion de conejos---
-            if dictAnimales[animal[KEY]][TIPO] == TIPO_CONEJO and dictAnimales[animal[KEY]][TIEMPO_RA] > FREC_REP_CONEJO:
-                posAux = [animal[KEY][FILA],animal[KEY][COLUMNA]].copy()
+            if dictAnimales[posicion][TIPO] == TIPO_CONEJO and dictAnimales[posicion][TIEMPO_RA] > FREC_REP_CONEJO:
+                posAux = [posicion[FILA],posicion[COLUMNA]].copy()
                 posNueva = [0,0]
                 if random.randint(1,100)<=PROB_REP_LEJANA*100:
-                    posNueva = moverAnimal(animal[KEY],DIST_REP_CONEJO*3)
+                    posNueva = moverAnimal(posicion,DIST_REP_CONEJO*3)
                 else:
-                    posNueva = moverAnimal(animal[KEY],DIST_REP_CONEJO)
+                    posNueva = moverAnimal(posicion,DIST_REP_CONEJO)
                 if not dictAnimales.get((posAux[0],posAux[1])):
-                    nuevoAni = [TIPO_CONEJO,0,0]
+                    nuevoAni = [TIPO_CONEJO,random.randint(-1,3),0]
                     dictAnimales[posAux[0],posAux[1]] = nuevoAni
                     dictAnimales[(posNueva[0],posNueva[1])][TIEMPO_RA] = 0
                     numConejos += 1
-        elif dictAnimales[animal[KEY]][TIPO] == TIPO_ZORRO:
+        elif dictAnimales[posicion][TIPO] == TIPO_ZORRO:
             #---Verificar muerte por edad o falta de alimento---
-            if dictAnimales[animal[KEY]][EDAD] > VIDA_ZORRO or dictAnimales[animal[KEY]][TIEMPO_RA] > FREC_ALI_ZORRO:
-                del dictAnimales[animal[KEY]]
+            if dictAnimales[posicion][EDAD] > VIDA_ZORRO or dictAnimales[posicion][TIEMPO_RA] > FREC_ALI_ZORRO:
+                del dictAnimales[posicion]
                 numZorros -= 1
                 continue
         #---Mover al animal---
-        posAux = moverAnimal(animal[KEY])
+        posAux = moverAnimal(posicion)
         posNueva = (posAux[0],posAux[1])
         #---Zorro se alimenta---
         if dictAnimales[posNueva][TIPO] == TIPO_ZORRO and dictAnimales[posNueva][TIEMPO_RA] > COOLDOWN_ZORRO:
@@ -168,20 +168,24 @@ for i in range(0,TOTAL_TICKS):
                             else:
                                 del dictAnimales[pos[0],pos[1]]
                             seAlimento = True
-    print(dictAnimales)                        
+                         
     listNumConejos.append(numConejos)
     listNumZorros.append(numZorros)
-    """
     # En caso de extincion:
     if numConejos == 0 or numZorros == 0:
-        conejo = [TIPO_CONEJO,0,0,0,0]
-        grillaMain[0][0] = conejo
-        listaAnimales.append(conejo)
+        conejo = [TIPO_CONEJO,0,0]
+        dictAnimales[0,0] = conejo
         numConejos += 1
-        zorro = [TIPO_ZORRO,2,2,0,0]
-        grillaMain[2][2] = zorro
-        listaAnimales.append(zorro)
+        zorro = [TIPO_ZORRO,0,0]
+        dictAnimales[2,2] = zorro
         numZorros += 1
-    """
-
+    if VISUALIZAR:
+        plt.clf()
+        plt.imshow(grilla, cmap="bwr")
+        plt.pause(0.001)  
+ticks = list(range(0,TOTAL_TICKS+1))
+plt.clf()
+plt.plot(ticks, listNumConejos)
+plt.plot(ticks, listNumZorros)
+plt.show()
 
