@@ -2,24 +2,28 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 
-# Parametros de la simulacion
+# Parametros generales
 GRID_SIZE = 100 
-TICK_RATE = 0.1 
-TOTAL_TICKS = 4000 
+TICK_RATE = 0.001 
+TOTAL_TICKS = 7000
+VISUALIZAR = True
+
+# Parametros de conejos
+NUM_INICIAL_CONEJOS = 200
 VIDA_CONEJO =  2000 
-VIDA_ZORRO = 1000 
-FREC_REP_CONEJO = 200 
-FREC_ALI_ZORRO = 100
-COOLDOWN_ZORRO = 3
-PROB_REP_ZORRO = 0.05 
-NUM_INICIAL_CONEJOS = 60
-NUM_INICIAL_ZORROS = 4
-VISUALIZAR = False
+FREC_REP_CONEJO = 100
 DIST_REP_CONEJO = 1
 PROB_REP_LEJANA = 0
+
+# Parametros de zorros
+NUM_INICIAL_ZORROS = 2
 DIST_MOV_ZORRO = 2
 PROB_MOV_RAND = 0.3
-
+DIST_PERCEPCION = 10
+VIDA_ZORRO = 1300 
+FREC_ALI_ZORRO = 20
+COOLDOWN_ZORRO = 1
+PROB_REP_ZORRO = 0.03
 
 # Constantes
 KEY = 0
@@ -48,10 +52,10 @@ def teletransportar(posicion):
     posicion[1] %= GRID_SIZE
     return posicion
 
-def generarMovimiento(distancia):
+def generarMovimiento(distanciaMax):
     mov = [0,0]
     while mov == [0,0]:
-        mov = [random.randint(-distancia,distancia),random.randint(-distancia,distancia)]
+        mov = [random.randint(-distanciaMax,distanciaMax),random.randint(-distanciaMax,distanciaMax)]
     return mov
 
 def moverAnimal(animal, distancia = 1, random = True):
@@ -68,6 +72,41 @@ def moverAnimal(animal, distancia = 1, random = True):
         dictAnimales[posicion[0],posicion[1]] = dictAnimales[animal]
         del dictAnimales[animal]
     return posicion
+
+def detectarPresa(animal):
+    # Recorrer "como espiral" los cuadrados adyacentes, desde mas cerca a más lejos
+    # Retorna la posición en la que se encuentra la presa
+    global dictAnimales
+    if not dictAnimales.get(animal):
+        return
+    posRevisada = [-1,-1]
+    for k in range(1,DIST_PERCEPCION+1):
+        for i in range(-k,k+1):
+            #print(i,",",str(-k))
+            posRevisada = tuple(teletransportar([animal[0]+i,animal[1]-k]))
+            if dictAnimales.get(posRevisada):
+                if dictAnimales[posRevisada][TIPO] == TIPO_CONEJO:
+                    return (i,-k)
+        for j in range(-k+1,k+1):
+            #print(str(k),",",j)
+            posRevisada = tuple(teletransportar([animal[0]+k,animal[1]+j]))
+            if dictAnimales.get(posRevisada):
+                if dictAnimales[posRevisada][TIPO] == TIPO_CONEJO:
+                    return (k,j)
+        for i in range(k-1,-k-1, -1):
+            #print(i,",",str(k))
+            posRevisada = tuple(teletransportar([animal[0]+i,animal[1]+k]))
+            if dictAnimales.get(posRevisada):
+                if dictAnimales[posRevisada][TIPO] == TIPO_CONEJO:
+                    return (i,k)
+        for j in range(k-1,-k, -1):
+            #print(str(-k),",",j)
+            posRevisada = tuple(teletransportar([animal[0]-k,animal[1]+j]))
+            if dictAnimales.get(posRevisada):
+                if dictAnimales[posRevisada][TIPO] == TIPO_CONEJO:
+                    return (-k,j)
+    return [-1,-1]
+
 
 def crearAnimalesInic():
     global dictAnimales
@@ -91,19 +130,20 @@ def crearAnimalesInic():
     listNumZorros.append(numZorros)
 
 crearAnimalesInic()
+#print(dictAnimales)
 
 # LOOP PRINCIPAL, cada iteración es un tick
 for i in range(0,TOTAL_TICKS):
-    grilla = np.full((100,100),0)
+    if VISUALIZAR: grilla = np.full((100,100),0)
     if i % 100 == 99:
-        print("# ticks: ",i)
+        print("# ticks: ",i," conejos: ", numConejos," zorros: ",numZorros)
     animales = list(dictAnimales.items()).copy()
     for animal in animales:
         #---Verificar que animal exista en diccionario---
         if not dictAnimales.get(animal[KEY]):
             continue
         posicion = animal[KEY]
-        grilla[posicion[FILA]][posicion[COLUMNA]] = dictAnimales[posicion][TIPO]
+        if VISUALIZAR: grilla[posicion[FILA]][posicion[COLUMNA]] = dictAnimales[posicion][TIPO]
         #---Paso de tiempo (aumento de edad y tiempo desde alimentacion/reproduccion)---
         dictAnimales[posicion][EDAD] += 1
         dictAnimales[posicion][TIEMPO_RA] += 1
@@ -123,7 +163,7 @@ for i in range(0,TOTAL_TICKS):
                 else:
                     posNueva = moverAnimal(posicion,DIST_REP_CONEJO,True)
                 if not dictAnimales.get((posAux[0],posAux[1])):
-                    nuevoAni = [TIPO_CONEJO,random.randint(-int(FREC_REP_CONEJO/2),int(FREC_REP_CONEJO/2)),0] #para que la reproduccion se mas heterogenea
+                    nuevoAni = [TIPO_CONEJO,random.randint(-int(FREC_REP_CONEJO/5),int(FREC_REP_CONEJO/5)),0] #para que la reproduccion se mas heterogenea
                     dictAnimales[posAux[0],posAux[1]] = nuevoAni
                     dictAnimales[(posNueva[0],posNueva[1])][TIEMPO_RA] = 0
                     numConejos += 1
@@ -136,6 +176,26 @@ for i in range(0,TOTAL_TICKS):
                 del dictAnimales[posicion]
                 numZorros -= 1
                 continue
+            #---Detectar presa, si es que zorro no está en cooldown---
+            if dictAnimales[posicion][TIEMPO_RA] > COOLDOWN_ZORRO:
+                dirPresa = list(detectarPresa(posicion))
+                if dirPresa != [-1,-1]:
+                    if abs(dirPresa[0]) > DIST_MOV_ZORRO:
+                        dirPresa[0] = int(dirPresa[0]/abs(dirPresa[0]))*DIST_MOV_ZORRO
+                    else:
+                        if dirPresa[0] < 0:
+                            dirPresa[0] += 1
+                        elif dirPresa[0] > 0:
+                            dirPresa[0] -= 1
+                    if abs(dirPresa[1]) > DIST_MOV_ZORRO:
+                        dirPresa[1] = int(dirPresa[1]/abs(dirPresa[1]))*DIST_MOV_ZORRO
+                    else:
+                        if dirPresa[1] < 0:
+                            dirPresa[1] += 1
+                        elif dirPresa[1] > 0:
+                            dirPresa[1] -= 1
+                    dictAnimales[posicion][DIR_MOV] = dirPresa
+            
             #---Mover al zorro---
             if random.randint(0,100) <= PROB_MOV_RAND*100:
                 # Movimiento aleatorio
@@ -156,10 +216,10 @@ for i in range(0,TOTAL_TICKS):
                         presa = dictAnimales[pos[0],pos[1]]
                         if presa[TIPO] == TIPO_CONEJO:       
                             dictAnimales[posNueva][TIEMPO_RA] = 0
-                            dictAnimales[posNueva][DIR_MOV] = (fila,col)
+                            dictAnimales[posNueva][DIR_MOV] = (0,0)
                             numConejos -= 1
                             #---Reproduccion de zorro---
-                            if random.randint(1,100)<=PROB_REP_ZORRO*100:
+                            if random.randint(1,1000)<=PROB_REP_ZORRO*1000:
                                 nuevoAni = [TIPO_ZORRO,0,0,generarMovimiento(DIST_MOV_ZORRO)]
                                 dictAnimales[pos[0],pos[1]] = nuevoAni                    
                                 numZorros += 1
@@ -169,17 +229,18 @@ for i in range(0,TOTAL_TICKS):
     listNumConejos.append(numConejos)
     listNumZorros.append(numZorros)
     # En caso de extincion:
-    if numConejos <= 0 or numZorros <= 0:
-        if numZorros <= 0: numZorros=1
-        if numConejos <= 0: numConejos=1
+    if numZorros <= 0:
+        zorro = [TIPO_ZORRO,0,0,(random.randint(-1,1),random.randint(-1,1))]
+        dictAnimales[int(GRID_SIZE/2),int(GRID_SIZE/2)] = zorro
+        numZorros += 1 
+    if numConejos <= 0: 
+        numConejos=1
         conejo = [TIPO_CONEJO,0,0]
         dictAnimales[0,0] = conejo
-        zorro = [TIPO_ZORRO,0,0,(random.randint(-1,1),random.randint(-1,1))]
-        dictAnimales[2,2] = zorro
     if VISUALIZAR:
         plt.clf()
         plt.imshow(grilla, cmap="bwr")
-        plt.pause(0.001)  
+        plt.pause(TICK_RATE)  
 ticks = list(range(0,TOTAL_TICKS+1))
 plt.clf()
 plt.plot(ticks, listNumConejos)
