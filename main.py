@@ -2,11 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 
+random.seed(10)
+
 # Parametros generales
 GRID_SIZE = 100      # Cuadrado = 200 m (grilla = 20 km2)
 TICK_RATE = 0.001     
 TOTAL_TICKS = 14000	 # Tick = 1/4 día = 6 horas
-VISUALIZAR = False
+VISUALIZAR = True
 
 # Parametros de conejos (familias de conejos)
 NUM_INICIAL_CONEJOS = 200
@@ -142,7 +144,7 @@ crearAnimalesInic()
 for i in range(0,TOTAL_TICKS):
     if VISUALIZAR: grilla = np.full((GRID_SIZE,GRID_SIZE),0)
     #if i % 100 == 99:
-    if i % 50 == 0:
+    if i % 200 == 0:
         print("# ticks: ",i," conejos: ", numConejos," zorros: ",numZorros)
     animales = list(dictAnimales.items()).copy()
     for animal in animales:
