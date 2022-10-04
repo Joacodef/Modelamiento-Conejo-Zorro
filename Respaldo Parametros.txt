@@ -1,16 +1,25 @@
-GRID_SIZE = 100 
-TICK_RATE = 0.1 
-TOTAL_TICKS = 4000 
-VIDA_CONEJO =  2000 
-VIDA_ZORRO = 1000 
-FREC_REP_CONEJO = 200 
-FREC_ALI_ZORRO = 100
-COOLDOWN_ZORRO = 3
-PROB_REP_ZORRO = 0.05 
-NUM_INICIAL_CONEJOS = 60
-NUM_INICIAL_ZORROS = 4
+# Parametros generales
+GRID_SIZE = 100      # Cuadrado = 200 m (grilla = 20 km2)
+TICK_RATE = 0.001     
+TOTAL_TICKS = 14000	 # Tick = 1/4 día = 6 horas
 VISUALIZAR = False
+
+# Parametros de conejos (familias de conejos)
+NUM_INICIAL_CONEJOS = 200
+VIDA_CONEJO =  10000
+FREC_REP_CONEJO = 400 # Se crea una nueva familia cada 100 dias
 DIST_REP_CONEJO = 1
 PROB_REP_LEJANA = 0
-DIST_MOV_ZORRO = 2
-PROB_MOV_RAND = 0.3
+
+# Parametros de zorros
+NUM_INICIAL_ZORROS = 1
+VIDA_ZORRO = 10000
+FREC_ALI_ZORRO = 28   # 7 dias
+PROB_REP_ZORRO = 0.15
+DIST_MOV_ZORRO = 4    # 1.2 km cada 6 horas
+PROB_MOV_RAND = 0.1
+DIST_PERCEPCION = 5   # 1 km
+COOLDOWN_ZORRO = 1    # 6 horas
+PROB_ELIM_CONEJOS = 0.02
+PROB_CAZAR = 0.2
+PROB_PELEA = 0.7
