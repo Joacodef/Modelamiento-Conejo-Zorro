@@ -14,3 +14,7 @@ Entonces se establece, de manera muy básica, que:
 
 La ejecución requiere tener python (fue testeado en python 3.11, pero debería funcionar con 3.10 y anteriores).
 También requiere tener algunas librerías básicas como numpy y matplotlib.
+
+Cómo ejecutarlo:
+
+python main.py
