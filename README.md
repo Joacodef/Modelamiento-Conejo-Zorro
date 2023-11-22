@@ -11,3 +11,6 @@ Entonces se establece, de manera muy básica, que:
 \-tanto conejos como zorros pueden reproducirse, pero para los zorros está sujeto a su alimentación.
 
 \-tanto conejos como zorros mueren después de un tiempo.
+
+La ejecución requiere tener python (fue testeado en python 3.11, pero debería funcionar con 3.10 y anteriores).
+También requiere tener algunas librerías básicas como numpy y matplotlib.
