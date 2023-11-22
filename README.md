@@ -4,7 +4,7 @@ Primer trabajo para el ramo de Modelamiento Computacional. Consiste en simular u
 
 La idea es graficar las poblaciones de zorros y conejos, y llegar al comportamiento que se vería según las ecuaciones de Lotka-Volterra, sin forzarlo de manera explícita.
 
-Entonces se establecen, de manera muy básica, que: 
+Entonces se establece, de manera muy básica, que: 
 
 \-zorros se comen a conejos.
 
